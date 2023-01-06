@@ -1,45 +1,32 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { FaPlus } from 'react-icons/fa';
-import IssueModal from './IssueModal';
+import { IssueProps } from '../../../lib/type/IssueProps';
 
 interface IssueItemProps {
   issueState: string;
-  issueStateData: string[];
+  handleOpenCreateModal: (issueState: string) => void;
+  issues: IssueProps[];
 }
 
-const IssueItem = ({ issueState, issueStateData }: IssueItemProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState('김OO');
-
-  const isCreateModalOpen = () => {
-    setIsOpen((prev) => !prev);
-  };
-
-  const handleChangeSelect = (e: any) => {
-    setSelected(e.target.value);
+const IssueItem = ({ issueState, handleOpenCreateModal, issues }: IssueItemProps) => {
+  const handleCreateClick = () => {
+    handleOpenCreateModal(issueState);
   };
 
   return (
     <Container>
       <Header>
         <Title>{issueState}</Title>
-        <PlusBox onClick={isCreateModalOpen}>
+        <PlusBox onClick={handleCreateClick}>
           <FaPlus />
         </PlusBox>
       </Header>
       <IssueContainer>
-        <Issue>issue tracking</Issue>
+        <Issue>
+          <div>Issue Tracking</div>
+        </Issue>
       </IssueContainer>
-      {isOpen && (
-        <IssueModal
-          isOpen={isOpen}
-          isModalOpen={isCreateModalOpen}
-          issueStateData={issueStateData}
-          selectedState={selected}
-          handleChangeSelect={handleChangeSelect}
-        />
-      )}
     </Container>
   );
 };

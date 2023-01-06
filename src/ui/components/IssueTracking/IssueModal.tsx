@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { AiOutlineClose } from 'react-icons/ai';
+import { managers } from '../../../lib/dummyData/managersData';
 
 interface Props {
   isOpen: boolean;
@@ -8,28 +9,104 @@ interface Props {
   issueStateData: string[];
   selectedState: string;
   handleChangeSelect: any;
+  onSubmit: any;
 }
 
-const IssueCreate = ({ isOpen, isModalOpen, selectedState, handleChangeSelect, issueStateData }: Props) => {
+const IssueCreate = ({ isOpen, isModalOpen, selectedState, issueStateData, onSubmit }: Props) => {
+  const [userInput, setUserInput] = useState({
+    state: selectedState,
+    title: '',
+    text: '',
+    due: '',
+    manager: '',
+  });
+  const [isOpenSearchList, setIsOpenSearchList] = useState(false);
+  const [searchManagerList, setSearchManagerList] = useState<string[]>([]);
+
+  const handleChangeInput = (e: any) => {
+    const { value, name } = e.target;
+    if (value === '') {
+      setIsOpenSearchList(false);
+    }
+    setUserInput({
+      ...userInput,
+      [name]: value,
+    });
+    const regexp = new RegExp(value, 'gi');
+    const searchManager = managers.filter((manager) => manager.match(regexp));
+    // console.log(searchManager, managers, value);
+    setSearchManagerList(searchManager);
+    setIsOpenSearchList(true);
+  };
+
+  const handleSearchInputClick = (searchInputText: string) => {
+    // console.log('searchInputText', searchInputText);
+    setUserInput((prevUserInput) => ({
+      ...prevUserInput,
+      manager: searchInputText,
+    }));
+    setIsOpenSearchList(false);
+  };
+
   return (
     <Container isOpen={isOpen}>
       {isOpen ? (
         <InputContainer>
           <CloseBox onClick={isModalOpen}>
-            <AiOutlineClose color="#cdcdcd" />
+            <AiOutlineClose color='#cdcdcd' />
           </CloseBox>
-          <SelectState onChange={handleChangeSelect} value={selectedState}>
-            {issueStateData.map((item: any) => (
-              <option value={item} key={item}>
-                {item}
-              </option>
-            ))}
-          </SelectState>
-          <Input type="text" placeholder="담당자를 입력하세요." />
-          <Input type="text" placeholder="제목을 입력하세요." />
-          <Textarea placeholder="내용을 입력하세요." />
-          <Input type="datetime-local" />
-          <Button>등록하기</Button>
+          <InputDetailContainer>
+            <Label htmlFor='고유번호'>고유번호</Label>
+            <Input id='고유번호' type='text' readOnly={true} />
+            <SelectState onChange={handleChangeInput} name='state' value={userInput.state}>
+              {issueStateData.map((item: string) => (
+                <option value={item} key={item}>
+                  {item}
+                </option>
+              ))}
+            </SelectState>
+          </InputDetailContainer>
+          <InputDetailContainer>
+            <Label htmlFor='manager'>담당자</Label>
+            <Input
+              id='manager'
+              name='manager'
+              type='text'
+              placeholder='담당자를 입력하세요.'
+              onChange={handleChangeInput}
+              value={userInput.manager}
+            />
+          </InputDetailContainer>
+          {isOpenSearchList && searchManagerList.length > 0 && (
+            <SearchInput>
+              {searchManagerList.map((manager) => (
+                <li
+                  onClick={() => {
+                    handleSearchInputClick(manager);
+                  }}
+                >
+                  {manager}
+                </li>
+              ))}
+            </SearchInput>
+          )}
+          <InputDetailContainer>
+            <Label htmlFor='title'>제목</Label>
+            <Input
+              id='title'
+              type='text'
+              name='title'
+              placeholder='제목을 입력하세요.'
+              value={userInput.title}
+              onChange={handleChangeInput}
+            />
+          </InputDetailContainer>
+          <Textarea name='text' placeholder='내용을 입력하세요.' value={userInput.text} onChange={handleChangeInput} />
+          <InputDetailContainer>
+            <Label htmlFor='due'>마감일</Label>
+            <Input id='due' name='due' type='datetime-local' value={userInput.due} onChange={handleChangeInput} />
+          </InputDetailContainer>
+          <Button onClick={onSubmit}>등록하기</Button>
         </InputContainer>
       ) : null}
     </Container>
@@ -52,10 +129,10 @@ const Container = styled.div<{ isOpen: boolean }>`
   background-color: rgba(56, 56, 56, 0.6);
   z-index: 10;
   ${(props) =>
-  !props.isOpen &&
-  css`
-      display: none;
-    `};
+          !props.isOpen &&
+          css`
+            display: none;
+          `};
 `;
 
 const CloseBox = styled.div`
@@ -68,8 +145,8 @@ const CloseBox = styled.div`
   font-size: 25px;
   font-weight: 600;
   position: absolute;
-  top: 4%;
-  right: 3%;
+  top: 21%;
+  right: 27%;
   cursor: pointer;
 `;
 
@@ -85,22 +162,57 @@ const InputContainer = styled.div`
 `;
 
 const SelectState = styled.select`
-  margin-top: 10px;
+  width: 200px;
+  height: 30px;
+  padding: 2px 12px;
+  background-color: #e1efff;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+`;
+
+const InputDetailContainer = styled.label`
   width: 360px;
+  height: 35px;
+  margin-top: 5px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 8px;
+  padding: 2px 5px;
+`;
+
+const Label = styled.label`
+  width: 55px;
+  font-size: 12px;
+  padding: 2px 5px;
 `;
 
 const Input = styled.input`
-  margin-top: 10px;
-  width: 360px;
+  width: 300px;
+  height: 30px;
   padding: 2px 5px;
+  outline: none;
+  border: 1px solid #8d8d8d;
+  border-radius: 2px;
+
+  &:read-only {
+    border: none;
+    width: 94px;
+  }
 `;
 
 const Textarea = styled.textarea`
-  width: 360px;
-  height: 130px;
+  width: 350px;
+  height: 100px;
   margin-top: 10px;
-  padding: 2px 5px;
+  padding: 5px 5px;
+  border: 1px solid #8d8d8d;
+  border-radius: 2px;
   resize: none;
+  outline: none;
+  overflow-y: auto;
 `;
 
 const Button = styled.button`
@@ -114,4 +226,30 @@ const Button = styled.button`
   border-radius: 8px;
   border: none;
   cursor: pointer;
+`;
+
+const SearchInput = styled.div`
+  width: 295px;
+  height: auto;
+  padding: 2px 5px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  outline: none;
+  position: fixed;
+  top: 221px;
+  left: 380px;
+  overflow-y: auto;
+  z-index: 1;
+  box-shadow: 0 4px 5px rgba(134, 133, 133, 0.3);
+  list-style: none;
+
+  li {
+    padding: 0;
+    cursor: pointer;
+
+    &:hover {
+      background: #e2e2e2;
+    }
+  }
 `;
