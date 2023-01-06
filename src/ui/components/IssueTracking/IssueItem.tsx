@@ -25,16 +25,17 @@ const IssueItem = ({ issueState, handleOpenCreateModal, issues, onDelete }: Issu
         </PlusBox>
       </Header>
       <IssueContainer>
-        {issues &&
-          issues.map((issue) => (
-            <Issue key={issue.id}>
+        {issues.map((issue) => (
+          <Issue key={issue.id}>
+            <IssueBox>
               <div>{issue.title}</div>
               <div>{issue.manager}</div>
-              <CloseBox onClick={onDelete}>
-                <AiOutlineClose color='#cdcdcd' />
-              </CloseBox>
-            </Issue>
-          ))}
+            </IssueBox>
+            <CloseBox onClick={() => onDelete(issue)}>
+              <AiOutlineClose color='#cdcdcd' />
+            </CloseBox>
+          </Issue>
+        ))}
       </IssueContainer>
     </Container>
   );
@@ -100,6 +101,16 @@ const Issue = styled.div`
   background-color: #fffdfd;
   box-shadow: 5px 5px 5px #e5e5e5;
   border-radius: 8px;
+`;
+
+const IssueBox = styled.div`
+  width: 220px;
+  height: 70px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
 `;
 
 const CloseBox = styled.div`

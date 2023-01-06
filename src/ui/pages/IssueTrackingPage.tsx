@@ -29,22 +29,48 @@ const IssueTrackingPage = () => {
   };
 
   // console.log(todoIssues);
+  // console.log('todoIssues', todoIssues);
+  // console.log('progressIssues', progressIssues);
+  // console.log('doneIssues', doneIssues);
 
   const handleIssueSubmit = (userInput: IssueProps) => {
     nextId.current += 1;
     if (userInput.state === '할 일') {
-      setTodoIssues([...todoIssues, userInput]);
+      setTodoIssues([...todoIssues, {
+        ...userInput,
+        id: nextId.current,
+      }]);
     }
     if (userInput.state === '진행 중') {
-      setProgressIssues([...progressIssues, userInput]);
+      setProgressIssues([...progressIssues, {
+        ...userInput,
+        id: nextId.current,
+      }]);
     }
     if (userInput.state === '완료') {
-      setDoneIssues([...doneIssues, userInput]);
+      setDoneIssues([...doneIssues, {
+        ...userInput,
+        id: nextId.current,
+      }]);
     }
     handleToggleOpen();
   };
 
   const handleIssueDelete = (userInput: IssueProps) => {
+    // eslint-disable-next-line no-restricted-globals
+    const deleteCheck = confirm('정말 삭제하시겠습니까?');
+    // console.log(deleteCheck);
+    if (deleteCheck) {
+      if (userInput.state === '할 일') {
+        setTodoIssues((prev) => prev.filter((issue) => issue.id !== userInput.id));
+      }
+      if (userInput.state === '진행 중') {
+        setProgressIssues((prev) => prev.filter((issue) => issue.id !== userInput.id));
+      }
+      if (userInput.state === '완료') {
+        setDoneIssues((prev) => prev.filter((issue) => issue.id !== userInput.id));
+      }
+    }
   };
 
   return (

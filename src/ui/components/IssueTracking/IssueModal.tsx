@@ -68,8 +68,8 @@ const IssueCreate = ({ isOpen, isModalOpen, selectedState, issueStateData, onSub
             <AiOutlineClose color='#cdcdcd' />
           </CloseBox>
           <InputDetailContainer>
-            <Label htmlFor="id">고유번호</Label>
-            <Input id="id" type="text" readOnly={true} />
+            <Label htmlFor='id'>고유번호</Label>
+            <Input id='id' type='text' readOnly={true} />
             <SelectState onChange={handleChangeInput} name='state' value={userInput.state}>
               {issueStateData.map((item: string) => (
                 <option value={item} key={item}>
