@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { AiOutlineClose } from 'react-icons/ai';
 import { managers } from '../../../lib/dummyData/managersData';
@@ -32,21 +32,33 @@ const IssueCreate = ({ isOpen, isModalOpen, selectedState, issueStateData, onSub
       ...userInput,
       [name]: value,
     });
-    const regexp = new RegExp(value, 'gi');
-    const searchManager = managers.filter((manager) => manager.match(regexp));
-    // console.log(searchManager, managers, value);
-    setSearchManagerList(searchManager);
-    setIsOpenSearchList(true);
+
+    if (name === 'manager') {
+      const regexp = new RegExp(value, 'gi');
+      const searchManager = managers.filter((manager) => manager.match(regexp));
+      setSearchManagerList(searchManager);
+      setIsOpenSearchList(true);
+    }
   };
 
   const handleSearchInputClick = (searchInputText: string) => {
-    // console.log('searchInputText', searchInputText);
     setUserInput((prevUserInput) => ({
       ...prevUserInput,
       manager: searchInputText,
     }));
     setIsOpenSearchList(false);
   };
+
+  const isValidate = useMemo(
+    () =>
+      !(
+        userInput.title.length > 1 &&
+        userInput.text.length > 1 &&
+        userInput.due &&
+        searchManagerList.includes(userInput.manager)
+      ),
+    [userInput.title, userInput.text, userInput.due, userInput.manager],
+  );
 
   return (
     <Container isOpen={isOpen}>
@@ -56,8 +68,8 @@ const IssueCreate = ({ isOpen, isModalOpen, selectedState, issueStateData, onSub
             <AiOutlineClose color='#cdcdcd' />
           </CloseBox>
           <InputDetailContainer>
-            <Label htmlFor='고유번호'>고유번호</Label>
-            <Input id='고유번호' type='text' readOnly={true} />
+            <Label htmlFor="id">고유번호</Label>
+            <Input id="id" type="text" readOnly={true} />
             <SelectState onChange={handleChangeInput} name='state' value={userInput.state}>
               {issueStateData.map((item: string) => (
                 <option value={item} key={item}>
@@ -106,7 +118,9 @@ const IssueCreate = ({ isOpen, isModalOpen, selectedState, issueStateData, onSub
             <Label htmlFor='due'>마감일</Label>
             <Input id='due' name='due' type='datetime-local' value={userInput.due} onChange={handleChangeInput} />
           </InputDetailContainer>
-          <Button onClick={onSubmit}>등록하기</Button>
+          <Button onClick={onSubmit} disabled={isValidate}>
+            등록하기
+          </Button>
         </InputContainer>
       ) : null}
     </Container>
@@ -226,6 +240,11 @@ const Button = styled.button`
   border-radius: 8px;
   border: none;
   cursor: pointer;
+
+  &:disabled {
+    background-color: #c7c7c7;
+    cursor: not-allowed;
+  }
 `;
 
 const SearchInput = styled.div`
@@ -246,6 +265,7 @@ const SearchInput = styled.div`
 
   li {
     padding: 0;
+    margin: 0;
     cursor: pointer;
 
     &:hover {
