@@ -48,17 +48,31 @@ const IssueItem = ({
     dropPoint.current = item;
   };
 
+  const dragLeave = () => {
+    dropPoint.current = null;
+  };
+
   const maxOrderNumber = (issues: IssueProps[]) => {
     const orderNumberArr: number[] = [];
     issues.forEach((item) => orderNumberArr.push(item.orderNumber));
     return Math.max(...orderNumberArr);
   };
 
+  const dropPointOrderNumber = () => {
+    if (dropPoint.current === null) {
+      return maxOrderNumber(issues) + 1;
+    }
+    if (dropPoint.current.orderNumber === draggedItem.current!.orderNumber) {
+      return draggedItem.current!.orderNumber + 1;
+    }
+    return dropPoint.current.orderNumber + 1;
+  };
+
   const drop = () => {
     const copy = {
       ...draggedItem.current!,
       state: dropPointState.current!,
-      orderNumber: dropPoint.current ? dropPoint.current.orderNumber + 1 : maxOrderNumber(issues) + 1,
+      orderNumber: dropPointOrderNumber(),
     };
     updateIssue(copy);
     const res = getAllIssueData();
@@ -80,6 +94,7 @@ const IssueItem = ({
             draggable={true}
             onDragStart={() => dragStart(issue)}
             onDragOver={(e) => dragOverOrderNumber(e, issue)}
+            onDragLeave={() => dragLeave()}
             onDrop={() => drop()}
           >
             <IssueBox
