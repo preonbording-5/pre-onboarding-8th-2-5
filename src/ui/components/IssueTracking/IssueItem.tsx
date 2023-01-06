@@ -6,7 +6,7 @@ import { AiOutlineClose } from 'react-icons/ai';
 import { StateFilter } from '../../../api/issueStateFilter';
 import { getAllIssueData, updateIssue } from '../../../api/localStorage';
 import { useSetRecoilState } from 'recoil';
-import { issueData } from '../../../recoil/atom';
+import { issueData, loadingState } from '../../../recoil/atom';
 
 interface IssueItemProps {
   issueState: string;
@@ -32,6 +32,7 @@ const IssueItem = ({
   };
 
   const setIssueList = useSetRecoilState(issueData);
+  const setIsLoading = useSetRecoilState(loadingState);
 
   const dropPointState = useRef<string | null>(null);
 
@@ -74,9 +75,13 @@ const IssueItem = ({
       state: dropPointState.current!,
       orderNumber: dropPointOrderNumber(),
     };
-    updateIssue(copy);
-    const res = getAllIssueData();
-    setIssueList(res);
+    setIsLoading(true);
+    setTimeout(() => {
+      updateIssue(copy);
+      const res = getAllIssueData();
+      setIssueList(res);
+      setIsLoading(false);
+    }, 500);
   };
 
   return (
