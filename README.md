@@ -12,8 +12,8 @@ npm start
  
 
 ## 📌 배포 링크
-링크
- 
+[링크](https://pre-onboarding-8th-2-5-h1sbdofh9-vanillovin.vercel.app/)
+
 
 ## 📁 src 폴더 구조
 
