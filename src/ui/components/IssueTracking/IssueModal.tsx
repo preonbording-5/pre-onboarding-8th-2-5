@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { AiOutlineClose } from 'react-icons/ai';
 import { IssueProps } from '../../../lib/type/IssueProps';
 import { managers } from '../../../lib/dummyData/managersData';
@@ -10,7 +10,6 @@ const MODAL_TYPE = {
 };
 
 interface Props {
-  isOpen: boolean;
   modalType: 'CREATE' | 'EDIT';
   isModalOpen: () => void;
   issueStateData: string[];
@@ -19,16 +18,17 @@ interface Props {
   onSubmit: any;
 }
 
-const IssueCreate = ({ isOpen, modalType, isModalOpen, selectedState, issueStateData, issue, onSubmit }: Props) => {
+const IssueCreate = ({ modalType, isModalOpen, selectedState, issueStateData, issue, onSubmit }: Props) => {
   const [userInput, setUserInput] = useState(
     modalType === 'CREATE'
       ? {
-        state: selectedState,
-        title: '',
-        text: '',
-        due: '',
-        manager: '',
-      }
+          state: selectedState,
+          title: '',
+          text: '',
+          due: '',
+          manager: '',
+          id: localStorage.length + 1,
+        }
       : issue,
   );
   const [isOpenSearchList, setIsOpenSearchList] = useState(false);
@@ -68,83 +68,81 @@ const IssueCreate = ({ isOpen, modalType, isModalOpen, selectedState, issueState
         userInput.due &&
         managers.includes(userInput.manager)
       ),
-    [userInput.title, userInput.text, userInput.due, userInput.manager, managers],
+    [userInput.title, userInput.text, userInput.due, userInput.manager],
   );
 
   return (
-    <Container isOpen={isOpen}>
-      {isOpen ? (
-        <InputContainer>
-          <CloseBox onClick={isModalOpen}>
-            <AiOutlineClose color='#cdcdcd' />
-          </CloseBox>
-          <InputDetailContainer>
-            {modalType === 'EDIT' && (
-              <div style={{ width: '200px' }}>
-                <Label htmlFor='id'>고유번호</Label>
-                <span style={{ marginLeft: '10px' }}>{issue.id}</span>
-              </div>
-            )}
-            <SelectState onChange={handleChangeInput} name='state' value={userInput.state}>
-              {issueStateData.map((item: string) => (
-                <option value={item} key={item}>
-                  {item}
-                </option>
-              ))}
-            </SelectState>
-          </InputDetailContainer>
-          <InputDetailContainer>
-            <Label htmlFor='manager'>담당자</Label>
-            <Input
-              id='manager'
-              name='manager'
-              type='text'
-              placeholder='담당자를 입력하세요.'
-              onChange={handleChangeInput}
-              value={userInput.manager}
-            />
-          </InputDetailContainer>
-          {isOpenSearchList && searchManagerList.length > 0 && (
-            <SearchInput>
-              {searchManagerList.map((manager) => (
-                <li
-                  onClick={() => {
-                    handleSearchInputClick(manager);
-                  }}
-                >
-                  {manager}
-                </li>
-              ))}
-            </SearchInput>
+    <Container>
+      <InputContainer>
+        <CloseBox onClick={isModalOpen}>
+          <AiOutlineClose color="#cdcdcd" />
+        </CloseBox>
+        <InputDetailContainer>
+          {modalType === 'EDIT' && (
+            <div style={{ width: '200px' }}>
+              <Label htmlFor="id">고유번호</Label>
+              <span style={{ marginLeft: '10px' }}>{issue.id}</span>
+            </div>
           )}
-          <InputDetailContainer>
-            <Label htmlFor='title'>제목</Label>
-            <Input
-              id='title'
-              type='text'
-              name='title'
-              placeholder='제목을 입력하세요.'
-              value={userInput.title}
-              onChange={handleChangeInput}
-            />
-          </InputDetailContainer>
-          <Textarea name='text' placeholder='내용을 입력하세요.' value={userInput.text} onChange={handleChangeInput} />
-          <InputDetailContainer>
-            <Label htmlFor='due'>마감일</Label>
-            <Input id='due' name='due' type='datetime-local' value={userInput.due} onChange={handleChangeInput} />
-          </InputDetailContainer>
-          <Button onClick={() => onSubmit(userInput, modalType)} disabled={isValidate}>
-            {MODAL_TYPE[modalType]}
-          </Button>
-        </InputContainer>
-      ) : null}
+          <SelectState onChange={handleChangeInput} name="state" value={userInput.state}>
+            {issueStateData.map((item: string) => (
+              <option value={item} key={item}>
+                {item}
+              </option>
+            ))}
+          </SelectState>
+        </InputDetailContainer>
+        <InputDetailContainer>
+          <Label htmlFor="manager">담당자</Label>
+          <Input
+            id="manager"
+            name="manager"
+            type="text"
+            placeholder="담당자를 입력하세요."
+            onChange={handleChangeInput}
+            value={userInput.manager}
+          />
+        </InputDetailContainer>
+        {isOpenSearchList && searchManagerList.length > 0 && (
+          <SearchInput>
+            {searchManagerList.map((manager) => (
+              <li
+                onClick={() => {
+                  handleSearchInputClick(manager);
+                }}
+              >
+                {manager}
+              </li>
+            ))}
+          </SearchInput>
+        )}
+        <InputDetailContainer>
+          <Label htmlFor="title">제목</Label>
+          <Input
+            id="title"
+            type="text"
+            name="title"
+            placeholder="제목을 입력하세요."
+            value={userInput.title}
+            onChange={handleChangeInput}
+          />
+        </InputDetailContainer>
+        <Textarea name="text" placeholder="내용을 입력하세요." value={userInput.text} onChange={handleChangeInput} />
+        <InputDetailContainer>
+          <Label htmlFor="due">마감일</Label>
+          <Input id="due" name="due" type="datetime-local" value={userInput.due} onChange={handleChangeInput} />
+        </InputDetailContainer>
+        <Button onClick={() => onSubmit(userInput, modalType)} disabled={isValidate}>
+          {MODAL_TYPE[modalType]}
+        </Button>
+      </InputContainer>
     </Container>
   );
 };
 
 export default IssueCreate;
 
-const Container = styled.div<{ isOpen: boolean }>`
+const Container = styled.div`
   display: flex;
   width: 1000px;
   height: 600px;
@@ -157,11 +155,6 @@ const Container = styled.div<{ isOpen: boolean }>`
   transform: translate(-50%, -50%);
   background-color: rgba(56, 56, 56, 0.6);
   z-index: 10;
-  ${(props) =>
-          !props.isOpen &&
-          css`
-            display: none;
-          `};
 `;
 
 const CloseBox = styled.div`
