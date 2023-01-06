@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { FaPlus } from 'react-icons/fa';
 import { IssueProps } from '../../../lib/type/IssueProps';
 import { AiOutlineClose } from 'react-icons/ai';
+import { StateFilter } from '../../../api/issueStateFilter';
 
 interface IssueItemProps {
   issueState: string;
@@ -26,7 +27,7 @@ const IssueItem = ({ issueState, handleOpenCreateModal, handleOpenEditModal, iss
         </PlusBox>
       </Header>
       <IssueContainer>
-        {issues.map((issue) => (
+        {StateFilter(issues, issueState).map((issue) => (
           <Issue key={issue.id}>
             <IssueBox
               onClick={() => {
@@ -37,7 +38,7 @@ const IssueItem = ({ issueState, handleOpenCreateModal, handleOpenEditModal, iss
               <div>{issue.manager}</div>
             </IssueBox>
             <CloseBox onClick={() => onDelete(issue)}>
-              <AiOutlineClose color='#cdcdcd' />
+              <AiOutlineClose color="#cdcdcd" />
             </CloseBox>
           </Issue>
         ))}
