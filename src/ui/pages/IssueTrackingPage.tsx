@@ -4,8 +4,9 @@ import IssueModal from '../components/IssueTracking/IssueModal';
 import IssueItem from '../components/IssueTracking/IssueItem';
 import { IssueProps } from '../../lib/type/IssueProps';
 import { useRecoilState } from 'recoil';
-import { issueData } from '../../recoil/atom';
+import { issueData, loadingState } from '../../recoil/atom';
 import { createIssue, deleteIssue, getAllIssueData, updateIssue } from '../../api/localStorage';
+import Loading from '../components/loading';
 
 type ModalType = 'CREATE' | 'EDIT';
 
@@ -25,12 +26,18 @@ const IssueTrackingPage = () => {
   });
   const [modalType, setModalType] = useState<ModalType>('CREATE');
   const [issueList, setIssueList] = useRecoilState(issueData);
+  const [isLoading, setIsLoading] = useRecoilState(loadingState);
+
   const draggedItem = useRef<IssueProps | null>(null);
   const dropPoint = useRef<IssueProps | null>(null);
 
   useEffect(() => {
-    setIssueList(() => getAllIssueData());
-  }, [setIssueList]);
+    setIsLoading(true);
+    setTimeout(() => {
+      setIssueList(() => getAllIssueData());
+      setIsLoading(false);
+    }, 500);
+  }, [setIssueList, setIsLoading]);
 
   const handleToggleOpen = () => {
     setIsOpen((prev) => !prev);
@@ -50,13 +57,21 @@ const IssueTrackingPage = () => {
 
   const handleIssueSubmit = (userInput: IssueProps, modalType: ModalType) => {
     if (modalType === 'CREATE') {
-      createIssue(userInput);
-      setIssueList([...issueList, userInput]);
+      setIsLoading(true);
+      setTimeout(() => {
+        createIssue(userInput);
+        setIssueList([...issueList, userInput]);
+        setIsLoading(false);
+      }, 500);
     }
 
     if (modalType === 'EDIT') {
-      updateIssue(userInput);
-      setIssueList(() => getAllIssueData());
+      setIsLoading(true);
+      setTimeout(() => {
+        updateIssue(userInput);
+        setIssueList(() => getAllIssueData());
+        setIsLoading(false);
+      }, 500);
     }
     handleToggleOpen();
   };
@@ -65,13 +80,18 @@ const IssueTrackingPage = () => {
     // eslint-disable-next-line no-restricted-globals
     const deleteCheck = confirm('정말 삭제하시겠습니까?');
     if (deleteCheck) {
-      deleteIssue(userInput.id!);
-      setIssueList(() => getAllIssueData());
+      setTimeout(() => {
+        setIsLoading(true);
+        deleteIssue(userInput.id!);
+        setIssueList(() => getAllIssueData());
+      }, 500);
+      setIsLoading(false);
     }
   };
 
   return (
     <Container>
+      {isLoading ? <Loading /> : ''}
       {isOpen && (
         <IssueModal
           modalType={modalType}
