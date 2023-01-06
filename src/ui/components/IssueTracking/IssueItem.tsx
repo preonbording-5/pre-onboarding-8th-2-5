@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { FaPlus } from 'react-icons/fa';
 import { IssueProps } from '../../../lib/type/IssueProps';
 import { AiOutlineClose } from 'react-icons/ai';
 import { StateFilter } from '../../../api/issueStateFilter';
+import { getAllIssueData, updateIssue } from '../../../api/localStorage';
+import { useSetRecoilState } from 'recoil';
+import { issueData } from '../../../recoil/atom';
 
 interface IssueItemProps {
   issueState: string;
@@ -11,15 +14,73 @@ interface IssueItemProps {
   handleOpenEditModal: (issue: IssueProps) => void;
   issues: IssueProps[];
   onDelete: any;
+  draggedItem: React.MutableRefObject<IssueProps | null>;
+  dropPoint: React.MutableRefObject<IssueProps | null>;
 }
 
-const IssueItem = ({ issueState, handleOpenCreateModal, handleOpenEditModal, issues, onDelete }: IssueItemProps) => {
+const IssueItem = ({
+  issueState,
+  handleOpenCreateModal,
+  handleOpenEditModal,
+  issues,
+  onDelete,
+  draggedItem,
+  dropPoint,
+}: IssueItemProps) => {
   const handleCreateClick = () => {
     handleOpenCreateModal(issueState);
   };
 
+  const setIssueList = useSetRecoilState(issueData);
+
+  const dropPointState = useRef<string | null>(null);
+
+  const dragStart = (issue: IssueProps) => {
+    draggedItem.current! = issue;
+  };
+
+  const dragOverState = (e: React.DragEvent<HTMLDivElement>, issueState: string) => {
+    e.preventDefault();
+    dropPointState.current = issueState;
+  };
+
+  const dragOverOrderNumber = (e: React.DragEvent<HTMLDivElement>, item: IssueProps) => {
+    dropPoint.current = item;
+  };
+
+  const dragLeave = () => {
+    dropPoint.current = null;
+  };
+
+  const maxOrderNumber = (issues: IssueProps[]) => {
+    const orderNumberArr: number[] = [];
+    issues.forEach((item) => orderNumberArr.push(item.orderNumber));
+    return Math.max(...orderNumberArr);
+  };
+
+  const dropPointOrderNumber = () => {
+    if (dropPoint.current === null) {
+      return maxOrderNumber(issues) + 1;
+    }
+    if (dropPoint.current.orderNumber === draggedItem.current!.orderNumber) {
+      return draggedItem.current!.orderNumber + 1;
+    }
+    return dropPoint.current.orderNumber + 1;
+  };
+
+  const drop = () => {
+    const copy = {
+      ...draggedItem.current!,
+      state: dropPointState.current!,
+      orderNumber: dropPointOrderNumber(),
+    };
+    updateIssue(copy);
+    const res = getAllIssueData();
+    setIssueList(res);
+  };
+
   return (
-    <Container>
+    <Container onDragOver={(e) => dragOverState(e, issueState)} onDrop={() => drop()}>
       <Header>
         <Title>{issueState}</Title>
         <PlusBox onClick={handleCreateClick}>
@@ -28,7 +89,14 @@ const IssueItem = ({ issueState, handleOpenCreateModal, handleOpenEditModal, iss
       </Header>
       <IssueContainer>
         {StateFilter(issues, issueState).map((issue) => (
-          <Issue key={issue.id}>
+          <Issue
+            key={issue.id}
+            draggable={true}
+            onDragStart={() => dragStart(issue)}
+            onDragOver={(e) => dragOverOrderNumber(e, issue)}
+            onDragLeave={() => dragLeave()}
+            onDrop={() => drop()}
+          >
             <IssueBox
               onClick={() => {
                 handleOpenEditModal(issue);

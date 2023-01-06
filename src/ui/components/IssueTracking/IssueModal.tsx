@@ -28,6 +28,7 @@ const IssueCreate = ({ modalType, isModalOpen, selectedState, issueStateData, is
           due: '',
           manager: '',
           id: localStorage.length + 1,
+          orderNumber: localStorage.length + 1,
         }
       : issue,
   );
