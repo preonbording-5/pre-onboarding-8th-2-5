@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import IssueModal from '../components/IssueTracking/IssueModal';
 import IssueItem from '../components/IssueTracking/IssueItem';
@@ -21,9 +21,12 @@ const IssueTrackingPage = () => {
     due: '',
     manager: '',
     id: 0,
+    orderNumber: 0,
   });
   const [modalType, setModalType] = useState<ModalType>('CREATE');
   const [issueList, setIssueList] = useRecoilState(issueData);
+  const draggedItem = useRef<IssueProps | null>(null);
+  const dropPoint = useRef<IssueProps | null>(null);
 
   useEffect(() => {
     setIssueList(() => getAllIssueData());
@@ -88,6 +91,8 @@ const IssueTrackingPage = () => {
             handleOpenEditModal={handleOpenEditModal}
             issues={issueList}
             onDelete={handleIssueDelete}
+            draggedItem={draggedItem}
+            dropPoint={dropPoint}
           />
         );
       })}

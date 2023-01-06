@@ -10,7 +10,9 @@ export const getAllIssueData = () => {
   for (let i = 0; i < issueLength; i++) {
     issueList.push(JSON.parse(localStorage.getItem(localStorage.key(i)!) as string));
   }
-  return issueList;
+  return issueList.sort((a: IssueProps, b: IssueProps) => {
+    return a.orderNumber! - b.orderNumber!;
+  });
 };
 
 export const deleteIssue = (id: number) => {
