@@ -118,7 +118,7 @@ const IssueCreate = ({ isOpen, isModalOpen, selectedState, issueStateData, onSub
             <Label htmlFor='due'>마감일</Label>
             <Input id='due' name='due' type='datetime-local' value={userInput.due} onChange={handleChangeInput} />
           </InputDetailContainer>
-          <Button onClick={onSubmit} disabled={isValidate}>
+          <Button onClick={() => onSubmit(userInput)} disabled={isValidate}>
             등록하기
           </Button>
         </InputContainer>

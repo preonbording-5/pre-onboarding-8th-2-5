@@ -2,14 +2,16 @@ import React from 'react';
 import styled from 'styled-components';
 import { FaPlus } from 'react-icons/fa';
 import { IssueProps } from '../../../lib/type/IssueProps';
+import { AiOutlineClose } from 'react-icons/ai';
 
 interface IssueItemProps {
   issueState: string;
   handleOpenCreateModal: (issueState: string) => void;
   issues: IssueProps[];
+  onDelete: any;
 }
 
-const IssueItem = ({ issueState, handleOpenCreateModal, issues }: IssueItemProps) => {
+const IssueItem = ({ issueState, handleOpenCreateModal, issues, onDelete }: IssueItemProps) => {
   const handleCreateClick = () => {
     handleOpenCreateModal(issueState);
   };
@@ -23,9 +25,16 @@ const IssueItem = ({ issueState, handleOpenCreateModal, issues }: IssueItemProps
         </PlusBox>
       </Header>
       <IssueContainer>
-        <Issue>
-          <div>Issue Tracking</div>
-        </Issue>
+        {issues &&
+          issues.map((issue) => (
+            <Issue key={issue.id}>
+              <div>{issue.title}</div>
+              <div>{issue.manager}</div>
+              <CloseBox onClick={onDelete}>
+                <AiOutlineClose color='#cdcdcd' />
+              </CloseBox>
+            </Issue>
+          ))}
       </IssueContainer>
     </Container>
   );
@@ -85,10 +94,22 @@ const Issue = styled.div`
   height: 70px;
   margin: 15px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-around;
   align-items: center;
   background-color: #fffdfd;
   box-shadow: 5px 5px 5px #e5e5e5;
   border-radius: 8px;
+`;
+
+const CloseBox = styled.div`
+  width: 30px;
+  height: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 25px;
+  font-weight: 600;
+  cursor: pointer;
 `;

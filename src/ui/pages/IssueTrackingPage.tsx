@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import IssueModal from '../components/IssueTracking/IssueModal';
 import IssueItem from '../components/IssueTracking/IssueItem';
@@ -9,7 +9,11 @@ const IssueTrackingPage = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedState, setSelectedState] = useState('할 일');
-  const [issues, setIssues] = useState<IssueProps[]>([]);
+  const [todoIssues, setTodoIssues] = useState<IssueProps[]>([]);
+  const [progressIssues, setProgressIssues] = useState<IssueProps[]>([]);
+  const [doneIssues, setDoneIssues] = useState<IssueProps[]>([]);
+
+  const nextId = useRef(0);
 
   const handleToggleOpen = () => {
     setIsOpen((prev) => !prev);
@@ -24,8 +28,23 @@ const IssueTrackingPage = () => {
     setSelectedState(e.target.value);
   };
 
-  const handleIssueSubmit = () => {
+  // console.log(todoIssues);
+
+  const handleIssueSubmit = (userInput: IssueProps) => {
+    nextId.current += 1;
+    if (userInput.state === '할 일') {
+      setTodoIssues([...todoIssues, userInput]);
+    }
+    if (userInput.state === '진행 중') {
+      setProgressIssues([...progressIssues, userInput]);
+    }
+    if (userInput.state === '완료') {
+      setDoneIssues([...doneIssues, userInput]);
+    }
     handleToggleOpen();
+  };
+
+  const handleIssueDelete = (userInput: IssueProps) => {
   };
 
   return (
@@ -40,9 +59,24 @@ const IssueTrackingPage = () => {
           onSubmit={handleIssueSubmit}
         />
       )}
-      <IssueItem issueState="할 일" handleOpenCreateModal={handleOpenCreateModal} issues={issues} />
-      <IssueItem issueState="진행 중" handleOpenCreateModal={handleOpenCreateModal} issues={issues} />
-      <IssueItem issueState="완료" handleOpenCreateModal={handleOpenCreateModal} issues={issues} />
+      <IssueItem
+        issueState='할 일'
+        handleOpenCreateModal={handleOpenCreateModal}
+        issues={todoIssues}
+        onDelete={handleIssueDelete}
+      />
+      <IssueItem
+        issueState='진행 중'
+        handleOpenCreateModal={handleOpenCreateModal}
+        issues={progressIssues}
+        onDelete={handleIssueDelete}
+      />
+      <IssueItem
+        issueState='완료'
+        handleOpenCreateModal={handleOpenCreateModal}
+        issues={doneIssues}
+        onDelete={handleIssueDelete}
+      />
     </Container>
   );
 };
